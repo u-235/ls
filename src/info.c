@@ -121,17 +121,17 @@ info_print(
         size_t tab = 0;
 
         for (int i = 0; i < COLUMNS; i++) {
-                while (tab > printed) {
+                do {
                         putchar(' ');
                         printed++;
-                }
+                } while (tab > printed);
 
                 /* Красивое выравнивание по правому краю для счетчика ссылок
                  * и размера файла.
                  */
                 if (i == COL_LINK || i == COL_SIZE) {
-                        size_t sz = cols[i] - strlen(info->str[i]);
-                        while (tab + sz > printed) {
+                        size_t sz = strlen(info->str[i]);
+                        while (tab + cols[i] >= printed + sz) {
                                 putchar(' ');
                                 printed++;
                         }
