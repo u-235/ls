@@ -27,55 +27,46 @@
 static void
 info_fill(
         struct info_file_t *info,
-        size_t cols[],
         const char *path);
 
 static void
 info_fill_mode(
-        struct info_file_t *info,
-        size_t cols[]);
+        struct info_file_t *info);
 
 static void
 info_fill_link(
-        struct info_file_t *info,
-        size_t cols[]);
+        struct info_file_t *info);
 
 static void
 info_fill_user(
-        struct info_file_t *info,
-        size_t cols[]);
+        struct info_file_t *info);
 
 static void
 info_fill_group(
-        struct info_file_t *info,
-        size_t cols[]);
+        struct info_file_t *info);
 
 static void
 info_fill_size(
-        struct info_file_t *info,
-        size_t cols[]);
+        struct info_file_t *info);
 
 static void
 info_fill_time(
-        struct info_file_t *info,
-        size_t cols[]);
+        struct info_file_t *info);
 
 static void
 info_fill_name(
         struct info_file_t *info,
-        size_t cols[],
         const char *name);
 
 struct info_file_t *
 info_new(
-        const char *path,
-        size_t cols[])
+        const char *path)
 {
         assert(path != NULL);
 
         struct info_file_t *info = calloc(1, sizeof(struct info_file_t));
         assert(info != NULL);
-        info_fill(info, cols, path);
+        info_fill(info, path);
         return info;
 }
 
@@ -102,9 +93,26 @@ info_compare(
 }
 
 void
-info_print(
+info_calc_colunmss(
         const struct info_file_t *info,
         size_t cols[])
+{
+        assert(info != NULL);
+        assert(cols != NULL);
+
+        size_t sz = 0;
+
+        for (int i = 0; i < COLUMNS; i++) {
+                sz = strlen(info->str[i]);
+
+                cols[i] = cols[i] > sz ? cols[i] : sz;
+        }
+}
+
+void
+info_print(
+        const struct info_file_t *info,
+        const size_t cols[])
 {
         assert(info != NULL);
         assert(cols != NULL);
@@ -142,11 +150,9 @@ info_print(
 void
 info_fill(
         struct info_file_t *info,
-        size_t cols[],
         const char *path)
 {
         assert(info != NULL);
-        assert(cols != NULL);
         assert(path != NULL);
 
         if (stat(path, &info->bin) == -1) {
@@ -163,19 +169,18 @@ info_fill(
                 name++;
         }
 
-        info_fill_mode(info, cols);
-        info_fill_link(info, cols);
-        info_fill_user(info, cols);
-        info_fill_group(info, cols);
-        info_fill_size(info, cols);
-        info_fill_time(info, cols);
-        info_fill_name(info, cols, name);
+        info_fill_mode(info);
+        info_fill_link(info);
+        info_fill_user(info);
+        info_fill_group(info);
+        info_fill_size(info);
+        info_fill_time(info);
+        info_fill_name(info, name);
 }
 
 void
 info_fill_mode(
-        struct info_file_t *info,
-        size_t cols[])
+        struct info_file_t *info)
 {
         mode_t mode = info->bin.st_mode;
 
@@ -229,15 +234,13 @@ info_fill_mode(
         } while (mask != S_IXOTH);
 
         info->str[COL_MODE] = ms;
-        cols[COL_MODE] = sz;
 
 #undef MODE_STAMP
 }
 
 void
 info_fill_link(
-        struct info_file_t *info,
-        size_t cols[])
+        struct info_file_t *info)
 {
         char buf[256];
         size_t sz;
@@ -247,13 +250,11 @@ info_fill_link(
         assert(str != NULL);
         strcpy(str, buf);
         info->str[COL_LINK] = str;
-        cols[COL_LINK] = cols[COL_LINK] > sz ? cols[COL_LINK] : sz;
 }
 
 void
 info_fill_user(
-        struct info_file_t *info,
-        size_t cols[])
+        struct info_file_t *info)
 {
         uid_t uid = info->bin.st_uid;
         char buf[256];
@@ -273,13 +274,11 @@ info_fill_user(
         assert(dst != NULL);
         strcpy(dst, src);
         info->str[COL_USER] = dst;
-        cols[COL_USER] = cols[COL_USER] > sz ? cols[COL_USER] : sz;
 }
 
 void
 info_fill_group(
-        struct info_file_t *info,
-        size_t cols[])
+        struct info_file_t *info)
 {
         gid_t gid = info->bin.st_gid;
         char buf[256];
@@ -299,13 +298,11 @@ info_fill_group(
         assert(dst != NULL);
         strcpy(dst, src);
         info->str[COL_GROUP] = dst;
-        cols[COL_GROUP] = cols[COL_GROUP] > sz ? cols[COL_GROUP] : sz;
 }
 
 void
 info_fill_size(
-        struct info_file_t *info,
-        size_t cols[])
+        struct info_file_t *info)
 {
         char buf[256];
         size_t sz;
@@ -314,13 +311,11 @@ info_fill_size(
         assert(dst != NULL);
         strcpy(dst, buf);
         info->str[COL_SIZE] = dst;
-        cols[COL_SIZE] = cols[COL_SIZE] > sz ? cols[COL_SIZE] : sz;
 }
 
 void
 info_fill_time(
-        struct info_file_t *info,
-        size_t cols[])
+        struct info_file_t *info)
 {
         char buf[256];
         size_t sz = strftime(buf, 256, "%X %Ex", gmtime((const time_t *) &info->bin.st_mtim));
@@ -328,13 +323,11 @@ info_fill_time(
         assert(dst != NULL);
         strcpy(dst, buf);
         info->str[COL_DATE] = dst;
-        cols[COL_DATE] = cols[COL_DATE] > sz ? cols[COL_DATE] : sz;
 }
 
 void
 info_fill_name(
         struct info_file_t *info,
-        size_t cols[] __attribute__((unused)),
         const char *name)
 {
         char *dst = malloc(strlen(name) + 1);
@@ -342,4 +335,3 @@ info_fill_name(
         strcpy(dst, name);
         info->str[COL_NAME] = dst;
 }
-

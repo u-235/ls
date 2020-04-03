@@ -24,7 +24,6 @@ struct list_info_t {
         size_t capacity;            /* Вместимость массива items. */
         size_t length;              /* Количество указателей. */
         struct info_file_t **items; /* Указатель на массив указателей на структуры. */
-        size_t cols[COLUMNS];       /* Массив значений ширины колонок. */
 };
 
 /**
@@ -60,8 +59,17 @@ list_sort(
  * Печать списка.
  */
 extern void
+list_calc_columns(
+        const struct list_info_t *list,
+        struct format_t *format);
+
+/**
+ * Печать списка.
+ */
+extern void
 list_print(
-        struct list_info_t *list);
+        const struct list_info_t *list,
+        const struct format_t *format);
 
 
 #ifdef __cplusplus

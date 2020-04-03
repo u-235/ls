@@ -89,14 +89,27 @@ list_sort(
 }
 
 void
-list_print(
-        struct list_info_t *list)
+list_calc_columns(
+        const struct list_info_t *list,
+        struct format_t *format)
 {
         assert(list != NULL);
+        assert(format != NULL);
 
         for (size_t c = 0; c < list->length; c++) {
-                info_print(list->items[c], list->cols);
+                info_calc_colunmss(list->items[c], format->cols);
         }
 }
 
+void
+list_print(
+        const struct list_info_t *list,
+        const struct format_t *format)
+{
+        assert(list != NULL);
+        assert(format != NULL);
 
+        for (size_t c = 0; c < list->length; c++) {
+                info_print(list->items[c], format->cols);
+        }
+}

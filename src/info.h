@@ -16,19 +16,11 @@
 #include <sys/types.h>  /* типы для stat()        */
 #include <sys/stat.h>   /* stat() => инфо о файле */
 
+#include "format.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* Константы для обозначения номера колонки и общего числа колонок печати. */
-#define COL_MODE        0
-#define COL_LINK        1
-#define COL_USER        2
-#define COL_GROUP       3
-#define COL_SIZE        4
-#define COL_DATE        5
-#define COL_NAME        6
-#define COLUMNS         7
 
 /* Каждому печатаемому полю структуры stat соответствует строка str.
  * Структуру можно создать функцией info_new и удалить функцией info_delete.
@@ -47,8 +39,7 @@ struct info_file_t {
  */
 extern struct info_file_t *
 info_new(
-        const char *path,
-        size_t cols[]);
+        const char *path);
 
 /**
  * Удаление структуры.
@@ -68,12 +59,20 @@ info_compare(
         const struct info_file_t *r);
 
 /**
+ *
+ */
+extern void
+info_calc_colunmss(
+        const struct info_file_t *info,
+        size_t cols[]);
+
+/**
  * Печать строк структуры info. Ширина колонок подгоняется в соответствии со значениями cols.
  */
 extern void
 info_print(
         const struct info_file_t *info,
-        size_t cols[]);
+        const size_t cols[]);
 
 
 #ifdef __cplusplus

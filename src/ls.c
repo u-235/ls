@@ -40,6 +40,9 @@ main(int argc, char *argv[])
 {
         struct stat sb;
         struct list_info_t *list = list_new();
+        struct format_t format ={
+                .cols={0, 0, 0, 0, 0, 0, 0}
+        };
 
         if (argc != 2) {
                 fprintf(stderr, "Usage: %s <pathname>\n", argv[0]);
@@ -71,17 +74,18 @@ main(int argc, char *argv[])
                         /* В список элементов директории входят "лишних" два элемента - это
                          * читаемая директория и родительская.*/
                         if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
-                                list_add(list, info_new(dp->d_name, list->cols));
+                                list_add(list, info_new(dp->d_name));
                         }
                 }
 
                 closedir(dirp);
         } else {
-                list_add(list, info_new(argv[1], list->cols));
+                list_add(list, info_new(argv[1]));
         }
 
         list_sort(list);
-        list_print(list);
+        list_calc_columns(list, &format);
+        list_print(list, &format);
         list_delete(list);
 
         return EXIT_SUCCESS;
